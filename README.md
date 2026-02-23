@@ -69,3 +69,5 @@ See `backend/API.md` for detailed endpoint documentation.
 - User profiles
 - Category filtering
 - Location-based sorting
+- group project
+
