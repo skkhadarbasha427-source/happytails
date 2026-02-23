@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Test</title>
+</head>
+<body>
+    <h1>Test Backend API</h1>
+    
+    <h2>1. Test Health Check</h2>
+    <button onclick="testHealth()">Test Health</button>
+    <pre id="health-result"></pre>
+
+    <h2>2. Test Send OTP</h2>
+    <input type="text" id="phone" placeholder="+1234567890" value="+1234567890">
+    <button onclick="testSendOTP()">Send OTP</button>
+    <pre id="otp-result"></pre>
+
+    <h2>3. Test Verify OTP</h2>
+    <input type="text" id="otp" placeholder="123456" value="123456">
+    <button onclick="testVerifyOTP()">Verify OTP</button>
+    <pre id="verify-result"></pre>
+
+    <script>
+        const API_URL = 'http://localhost:5001/api';
+
+        async function testHealth() {
+            try {
+                const response = await fetch(`${API_URL}/health`);
+                const data = await response.json();
+                document.getElementById('health-result').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('health-result').textContent = 'ERROR: ' + error.message;
+            }
+        }
+
+        async function testSendOTP() {
+            const phone = document.getElementById('phone').value;
+            try {
+                const response = await fetch(`${API_URL}/auth/send-otp`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phoneNumber: phone })
+                });
+                const data = await response.json();
+                document.getElementById('otp-result').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('otp-result').textContent = 'ERROR: ' + error.message;
+            }
+        }
+
+        async function testVerifyOTP() {
+            const phone = document.getElementById('phone').value;
+            const otp = document.getElementById('otp').value;
+            try {
+                const response = await fetch(`${API_URL}/auth/verify-otp`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phoneNumber: phone, otp: otp })
+                });
+                const data = await response.json();
+                document.getElementById('verify-result').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('verify-result').textContent = 'ERROR: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>
