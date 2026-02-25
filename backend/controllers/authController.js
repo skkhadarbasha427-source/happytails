@@ -1,7 +1,7 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
-const { sendOTP } = require('../utils/twilioService');
-const { validatePhoneNumber, validateOTP } = require('../utils/validators');
+const { sendOTP } = require('../utils/emailService');
+const { validateEmail, validateOTP } = require('../utils/validators');
 
 // Generate 6-digit OTP
 const generateOTP = () => {
@@ -15,36 +15,36 @@ const generateToken = (id) => {
   });
 };
 
-// @desc    Send OTP to phone number
+// @desc    Send OTP to email
 // @route   POST /api/auth/send-otp
 // @access  Public
 exports.sendOTPController = async (req, res, next) => {
   try {
-    const { error } = validatePhoneNumber(req.body);
+    const { error } = validateEmail(req.body);
     if (error) {
       return res.status(400).json({ success: false, message: error.details[0].message });
     }
 
-    const { phoneNumber } = req.body;
+    const { email } = req.body;
     const otp = generateOTP();
     const otpExpire = new Date(Date.now() + parseInt(process.env.OTP_EXPIRE || 10) * 60 * 1000);
 
     // Find or create user
-    let user = await User.findOne({ phoneNumber });
+    let user = await User.findOne({ email });
     if (!user) {
-      user = await User.create({ phoneNumber });
+      user = await User.create({ email });
     }
 
     // Save OTP
     user.otp = { code: otp, expiresAt: otpExpire };
     await user.save();
 
-    // Send OTP via Twilio
-    await sendOTP(phoneNumber, otp);
+    // Send OTP via Email
+    await sendOTP(email, otp);
 
     res.status(200).json({
       success: true,
-      message: 'OTP sent successfully'
+      message: 'OTP sent successfully to your email'
     });
   } catch (error) {
     next(error);
@@ -61,16 +61,16 @@ exports.verifyOTPController = async (req, res, next) => {
       return res.status(400).json({ success: false, message: error.details[0].message });
     }
 
-    const { phoneNumber, otp } = req.body;
+    const { email, otp } = req.body;
 
-    const user = await User.findOne({ phoneNumber });
+    const user = await User.findOne({ email });
     if (!user) {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
 
     // Development mode: Accept any OTP
     if (process.env.NODE_ENV === 'development') {
-      console.log(`✅ Development mode: Accepting any OTP for ${phoneNumber}`);
+      console.log(`✅ Development mode: Accepting any OTP for ${email}`);
       
       // Mark as verified and clear OTP
       user.isVerified = true;
@@ -84,6 +84,7 @@ exports.verifyOTPController = async (req, res, next) => {
         token,
         user: {
           id: user._id,
+          email: user.email,
           phoneNumber: user.phoneNumber,
           name: user.name,
           profileImage: user.profileImage
@@ -114,6 +115,7 @@ exports.verifyOTPController = async (req, res, next) => {
       token,
       user: {
         id: user._id,
+        email: user.email,
         phoneNumber: user.phoneNumber,
         name: user.name,
         profileImage: user.profileImage

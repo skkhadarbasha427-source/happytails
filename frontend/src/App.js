@@ -6,6 +6,7 @@ import { AuthProvider } from './context/AuthContext';
 import PrivateRoute from './components/PrivateRoute';
 import Navbar from './components/Navbar';
 import Login from './pages/Login';
+import Register from './pages/Register';
 import Home from './pages/Home';
 import CreatePost from './pages/CreatePost';
 import PostDetail from './pages/PostDetail';
@@ -21,6 +22,7 @@ function App() {
           <Navbar />
           <Routes>
             <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
             <Route path="/" element={<Home />} />
             <Route path="/posts/:id" element={<PostDetail />} />
             <Route path="/create" element={<PrivateRoute><CreatePost /></PrivateRoute>} />

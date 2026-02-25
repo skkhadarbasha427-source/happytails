@@ -1,5 +1,17 @@
 const Joi = require('joi');
 
+exports.validateEmail = (data) => {
+  const schema = Joi.object({
+    email: Joi.string()
+      .email()
+      .required()
+      .messages({
+        'string.email': 'Please provide a valid email address'
+      })
+  });
+  return schema.validate(data);
+};
+
 exports.validatePhoneNumber = (data) => {
   const schema = Joi.object({
     phoneNumber: Joi.string()
@@ -14,7 +26,7 @@ exports.validatePhoneNumber = (data) => {
 
 exports.validateOTP = (data) => {
   const schema = Joi.object({
-    phoneNumber: Joi.string().required(),
+    email: Joi.string().email().required(),
     otp: Joi.string().length(6).required()
   });
   return schema.validate(data);
