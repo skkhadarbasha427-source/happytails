@@ -1,7 +1,7 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
-const { sendOTP } = require('../utils/twilioService');
-const { validatePhoneNumber, validateOTP } = require('../utils/validators');
+const { sendOTP } = require('../utils/emailService');
+const { validateEmail, validateOTP } = require('../utils/validators');
 
 // Generate 6-digit OTP
 const generateOTP = () => {
@@ -15,38 +15,74 @@ const generateToken = (id) => {
   });
 };
 
-// @desc    Send OTP to phone number
+// @desc    Send OTP to email
 // @route   POST /api/auth/send-otp
 // @access  Public
 exports.sendOTPController = async (req, res, next) => {
+  console.log('📨 Send OTP request received:', req.body);
+  
   try {
-    const { error } = validatePhoneNumber(req.body);
+    const { error } = validateEmail(req.body);
     if (error) {
+      console.log('❌ Validation error:', error.details[0].message);
       return res.status(400).json({ success: false, message: error.details[0].message });
     }
 
-    const { phoneNumber } = req.body;
+    const { email } = req.body;
+    console.log('✅ Email validated:', email);
+    
     const otp = generateOTP();
     const otpExpire = new Date(Date.now() + parseInt(process.env.OTP_EXPIRE || 10) * 60 * 1000);
+    console.log('🔢 OTP generated:', otp);
 
     // Find or create user
-    let user = await User.findOne({ phoneNumber });
+    let user = await User.findOne({ email });
     if (!user) {
-      user = await User.create({ phoneNumber });
+      console.log('👤 Creating new user for:', email);
+      user = new User({ email });
+    } else {
+      console.log('👤 Found existing user:', email);
     }
 
-    // Save OTP
+    // Update OTP (works for both new and existing users)
     user.otp = { code: otp, expiresAt: otpExpire };
     await user.save();
+    console.log('💾 User saved with OTP');
 
-    // Send OTP via Twilio
-    await sendOTP(phoneNumber, otp);
+    // Send OTP via Email
+    try {
+      const result = await sendOTP(email, otp);
+      console.log('✅ OTP sent successfully:', result);
+    } catch (emailError) {
+      console.error('❌ Email sending failed:', emailError.message);
+      // In development, continue anyway since OTP is logged to console
+      if (process.env.NODE_ENV !== 'development') {
+        return res.status(500).json({ 
+          success: false, 
+          message: 'Failed to send OTP email. Please try again.' 
+        });
+      }
+    }
 
+    console.log('✅ Sending success response');
     res.status(200).json({
       success: true,
-      message: 'OTP sent successfully'
+      message: process.env.NODE_ENV === 'development' 
+        ? 'OTP generated (check backend console)' 
+        : 'OTP sent successfully to your email'
     });
   } catch (error) {
+    console.error('❌ Send OTP Error:', error);
+    
+    // Handle duplicate key error
+    if (error.code === 11000) {
+      console.log('⚠️ Duplicate email detected');
+      return res.status(400).json({ 
+        success: false, 
+        message: 'This email is already registered. Please use the Login page instead.' 
+      });
+    }
+    
     next(error);
   }
 };
@@ -61,16 +97,16 @@ exports.verifyOTPController = async (req, res, next) => {
       return res.status(400).json({ success: false, message: error.details[0].message });
     }
 
-    const { phoneNumber, otp } = req.body;
+    const { email, otp } = req.body;
 
-    const user = await User.findOne({ phoneNumber });
+    const user = await User.findOne({ email });
     if (!user) {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
 
     // Development mode: Accept any OTP
     if (process.env.NODE_ENV === 'development') {
-      console.log(`✅ Development mode: Accepting any OTP for ${phoneNumber}`);
+      console.log(`✅ Development mode: Accepting any OTP for ${email}`);
       
       // Mark as verified and clear OTP
       user.isVerified = true;
@@ -84,6 +120,7 @@ exports.verifyOTPController = async (req, res, next) => {
         token,
         user: {
           id: user._id,
+          email: user.email,
           phoneNumber: user.phoneNumber,
           name: user.name,
           profileImage: user.profileImage
@@ -114,6 +151,7 @@ exports.verifyOTPController = async (req, res, next) => {
       token,
       user: {
         id: user._id,
+        email: user.email,
         phoneNumber: user.phoneNumber,
         name: user.name,
         profileImage: user.profileImage

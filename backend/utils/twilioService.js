@@ -1,12 +1,22 @@
 const twilio = require('twilio');
 
-// Initialize Twilio client only if credentials are provided
+// Initialize Twilio client only if valid credentials are provided
 let client = null;
-if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN) {
-  client = twilio(
-    process.env.TWILIO_ACCOUNT_SID,
-    process.env.TWILIO_AUTH_TOKEN
-  );
+const hasValidCredentials = 
+  process.env.TWILIO_ACCOUNT_SID && 
+  process.env.TWILIO_AUTH_TOKEN &&
+  process.env.TWILIO_ACCOUNT_SID !== 'your_twilio_account_sid' &&
+  process.env.TWILIO_AUTH_TOKEN !== 'your_twilio_auth_token';
+
+if (hasValidCredentials) {
+  try {
+    client = twilio(
+      process.env.TWILIO_ACCOUNT_SID,
+      process.env.TWILIO_AUTH_TOKEN
+    );
+  } catch (error) {
+    console.warn('Twilio initialization failed. SMS features will be disabled.');
+  }
 }
 
 exports.sendOTP = async (phoneNumber, otp) => {

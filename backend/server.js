@@ -3,11 +3,12 @@ const dotenv = require('dotenv');
 const cors = require('cors');
 const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
+const path = require('path');
 const connectDB = require('./config/db');
 const errorHandler = require('./middleware/errorHandler');
 
-// Load env vars
-dotenv.config();
+// Load env vars with explicit path
+dotenv.config({ path: path.join(__dirname, '.env') });
 
 // Connect to database
 connectDB();
