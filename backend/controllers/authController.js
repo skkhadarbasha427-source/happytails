@@ -32,21 +32,45 @@ exports.sendOTPController = async (req, res, next) => {
     // Find or create user
     let user = await User.findOne({ email });
     if (!user) {
-      user = await User.create({ email });
+      user = new User({ email });
     }
 
-    // Save OTP
+    // Update OTP (works for both new and existing users)
     user.otp = { code: otp, expiresAt: otpExpire };
     await user.save();
 
     // Send OTP via Email
-    await sendOTP(email, otp);
+    try {
+      await sendOTP(email, otp);
+      console.log(`✅ OTP sent successfully to ${email}`);
+    } catch (emailError) {
+      console.error('Email sending failed:', emailError.message);
+      // In development, continue anyway since OTP is logged to console
+      if (process.env.NODE_ENV !== 'development') {
+        return res.status(500).json({ 
+          success: false, 
+          message: 'Failed to send OTP email. Please try again.' 
+        });
+      }
+    }
 
     res.status(200).json({
       success: true,
-      message: 'OTP sent successfully to your email'
+      message: process.env.NODE_ENV === 'development' 
+        ? 'OTP generated (check backend console)' 
+        : 'OTP sent successfully to your email'
     });
   } catch (error) {
+    console.error('Send OTP Error:', error);
+    
+    // Handle duplicate key error
+    if (error.code === 11000) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'This email is already registered. Please use the Login page instead.' 
+      });
+    }
+    
     next(error);
   }
 };
