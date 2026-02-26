@@ -19,32 +19,42 @@ const generateToken = (id) => {
 // @route   POST /api/auth/send-otp
 // @access  Public
 exports.sendOTPController = async (req, res, next) => {
+  console.log('📨 Send OTP request received:', req.body);
+  
   try {
     const { error } = validateEmail(req.body);
     if (error) {
+      console.log('❌ Validation error:', error.details[0].message);
       return res.status(400).json({ success: false, message: error.details[0].message });
     }
 
     const { email } = req.body;
+    console.log('✅ Email validated:', email);
+    
     const otp = generateOTP();
     const otpExpire = new Date(Date.now() + parseInt(process.env.OTP_EXPIRE || 10) * 60 * 1000);
+    console.log('🔢 OTP generated:', otp);
 
     // Find or create user
     let user = await User.findOne({ email });
     if (!user) {
+      console.log('👤 Creating new user for:', email);
       user = new User({ email });
+    } else {
+      console.log('👤 Found existing user:', email);
     }
 
     // Update OTP (works for both new and existing users)
     user.otp = { code: otp, expiresAt: otpExpire };
     await user.save();
+    console.log('💾 User saved with OTP');
 
     // Send OTP via Email
     try {
-      await sendOTP(email, otp);
-      console.log(`✅ OTP sent successfully to ${email}`);
+      const result = await sendOTP(email, otp);
+      console.log('✅ OTP sent successfully:', result);
     } catch (emailError) {
-      console.error('Email sending failed:', emailError.message);
+      console.error('❌ Email sending failed:', emailError.message);
       // In development, continue anyway since OTP is logged to console
       if (process.env.NODE_ENV !== 'development') {
         return res.status(500).json({ 
@@ -54,6 +64,7 @@ exports.sendOTPController = async (req, res, next) => {
       }
     }
 
+    console.log('✅ Sending success response');
     res.status(200).json({
       success: true,
       message: process.env.NODE_ENV === 'development' 
@@ -61,10 +72,11 @@ exports.sendOTPController = async (req, res, next) => {
         : 'OTP sent successfully to your email'
     });
   } catch (error) {
-    console.error('Send OTP Error:', error);
+    console.error('❌ Send OTP Error:', error);
     
     // Handle duplicate key error
     if (error.code === 11000) {
+      console.log('⚠️ Duplicate email detected');
       return res.status(400).json({ 
         success: false, 
         message: 'This email is already registered. Please use the Login page instead.' 

@@ -22,7 +22,17 @@ const Register = () => {
       setOtpSent(true);
       toast.success('OTP sent to your email!');
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to send OTP');
+      const errorMessage = error.response?.data?.message || 'Failed to send OTP';
+      
+      // If email already exists, redirect to login
+      if (errorMessage.includes('already registered')) {
+        toast.error('Email already registered. Redirecting to login...');
+        setTimeout(() => {
+          navigate('/login');
+        }, 2000);
+      } else {
+        toast.error(errorMessage);
+      }
     } finally {
       setLoading(false);
     }
