@@ -36,12 +36,7 @@ exports.sendOTP = async (email, otp) => {
   console.log(`📧 OTP for ${email}: ${otp}`);
   console.log('=================================\n');
 
-  // In development mode, just return success after logging
-  if (process.env.NODE_ENV === 'development') {
-    return { success: true, message: 'OTP logged to console (dev mode)' };
-  }
-
-  // Production mode: Try to send via email
+  // Try to send via email (in both dev and production)
   try {
     if (!transporter) {
       console.error('Email transporter not initialized. Check EMAIL_USER and EMAIL_PASSWORD in .env');

@@ -43,17 +43,21 @@ const Register = () => {
     setLoading(true);
     try {
       const { data } = await API.post('/auth/verify-otp', { email, otp });
+      login(data.token, data.user);
       
       // Update profile with name if provided
       if (name.trim()) {
-        await API.put('/users/profile', { name }, {
-          headers: { Authorization: `Bearer ${data.token}` }
-        });
+        try {
+          await API.put('/users/profile', { name });
+          toast.success('Registration successful!');
+        } catch (err) {
+          console.error('Failed to update name:', err);
+        }
       }
       
-      login(data.token, data.user);
-      toast.success('Registration successful!');
-      navigate('/');
+      // Redirect to profile to complete phone number
+      toast.info('Please complete your profile');
+      navigate('/profile');
     } catch (error) {
       toast.error(error.response?.data?.message || 'Invalid OTP');
     } finally {

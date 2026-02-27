@@ -34,6 +34,7 @@ app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/users', require('./routes/userRoutes'));
 app.use('/api/posts', require('./routes/postRoutes'));
 app.use('/api/adoptions', require('./routes/adoptionRoutes'));
+app.use('/api/breeds', require('./routes/breedRoutes'));
 
 // Health check
 app.get('/api/health', (req, res) => {

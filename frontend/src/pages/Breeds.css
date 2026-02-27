@@ -1,0 +1,134 @@
+.breeds-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.breeds-page h1 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.subtitle {
+  text-align: center;
+  color: #666;
+  margin-bottom: 30px;
+}
+
+.filters {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.filter-group label {
+  font-weight: 600;
+  color: #555;
+}
+
+.filter-group select {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+.breeds-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.breed-card {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  overflow: hidden;
+  transition: transform 0.2s;
+}
+
+.breed-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.breed-image {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.breed-info {
+  padding: 15px;
+}
+
+.breed-info h3 {
+  margin: 0 0 5px 0;
+  color: #333;
+}
+
+.breed-type {
+  color: #666;
+  font-size: 14px;
+  margin: 5px 0;
+}
+
+.breed-description {
+  color: #555;
+  line-height: 1.5;
+  margin: 10px 0;
+}
+
+.breed-temperament {
+  color: #444;
+  font-size: 14px;
+  margin: 10px 0;
+}
+
+.breed-climate {
+  margin-top: 10px;
+}
+
+.climate-badge {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.climate-badge.suitable {
+  background: #d4edda;
+  color: #155724;
+}
+
+.climate-badge.not-suitable {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.loading, .no-results {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+}
+
+@media (max-width: 768px) {
+  .breeds-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

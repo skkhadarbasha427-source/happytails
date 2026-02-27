@@ -44,7 +44,10 @@ exports.validatePost = (data) => {
 
 exports.validateProfile = (data) => {
   const schema = Joi.object({
-    name: Joi.string().min(2).max(50).optional()
+    name: Joi.string().min(2).max(50).optional(),
+    phoneNumber: Joi.string().pattern(/^[0-9]{10}$/).optional().messages({
+      'string.pattern.base': 'Please provide a valid 10-digit phone number'
+    })
   });
   return schema.validate(data);
 };
