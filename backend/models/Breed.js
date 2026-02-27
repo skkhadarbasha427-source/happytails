@@ -26,8 +26,8 @@ const breedSchema = new mongoose.Schema({
   },
   size: {
     type: String,
-    enum: ['Small', 'Medium', 'Large', 'Extra Large'],
-    required: true
+    required: true,
+    trim: true
   },
   suitableForIndianClimate: {
     type: Boolean,
@@ -35,6 +35,30 @@ const breedSchema = new mongoose.Schema({
   },
   imageUrl: {
     type: String
+  },
+  group: {
+    type: String,
+    trim: true // e.g., 'Sporting', 'Herding', 'Working', 'Hound', 'Toy', 'Native/Primitive'
+  },
+  origin: {
+    type: String,
+    trim: true // e.g., 'United Kingdom', 'Germany', 'India'
+  },
+  weight: {
+    type: String,
+    trim: true // e.g., '55–80 lbs / 25–36 kg'
+  },
+  lifespan: {
+    type: String,
+    trim: true // e.g., '10–12 years'
+  },
+  whyGoodForIndia: {
+    type: String,
+    trim: true
+  },
+  needs: {
+    type: String,
+    trim: true // e.g., 'Daily exercise, moderate grooming'
   },
   isActive: {
     type: Boolean,
