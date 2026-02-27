@@ -34,7 +34,14 @@ const Login = () => {
       const { data } = await API.post('/auth/verify-otp', { email, otp });
       login(data.token, data.user);
       toast.success('Login successful!');
-      navigate('/');
+      
+      // Check if profile is incomplete
+      if (!data.user.name || !data.user.phoneNumber) {
+        toast.info('Please complete your profile');
+        navigate('/profile');
+      } else {
+        navigate('/');
+      }
     } catch (error) {
       toast.error(error.response?.data?.message || 'Invalid OTP');
     } finally {

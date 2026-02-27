@@ -5,6 +5,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { AuthProvider } from './context/AuthContext';
 import PrivateRoute from './components/PrivateRoute';
 import Navbar from './components/Navbar';
+import ProfileCompletionBanner from './components/ProfileCompletionBanner';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Home from './pages/Home';
@@ -13,6 +14,7 @@ import PostDetail from './pages/PostDetail';
 import Profile from './pages/Profile';
 import MyPosts from './pages/MyPosts';
 import AdoptionRequests from './pages/AdoptionRequests';
+import Breeds from './pages/Breeds';
 
 function App() {
   return (
@@ -20,10 +22,12 @@ function App() {
       <Router>
         <div className="App">
           <Navbar />
+          <ProfileCompletionBanner />
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/" element={<Home />} />
+            <Route path="/breeds" element={<Breeds />} />
             <Route path="/posts/:id" element={<PostDetail />} />
             <Route path="/create" element={<PrivateRoute><CreatePost /></PrivateRoute>} />
             <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />

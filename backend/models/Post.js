@@ -11,6 +11,27 @@ const postSchema = new mongoose.Schema({
     enum: ['Animal', 'Bird', 'Aquatic'],
     required: true
   },
+  animalType: {
+    type: String,
+    required: true,
+    trim: true // e.g., 'Dog', 'Cat', 'Parrot', 'Fish'
+  },
+  breedId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Breed'
+  },
+  petName: {
+    type: String,
+    trim: true
+  },
+  age: {
+    type: String,
+    trim: true // e.g., '2 months', '1 year'
+  },
+  gender: {
+    type: String,
+    enum: ['Male', 'Female', 'Unknown']
+  },
   imageUrl: {
     type: String,
     required: true

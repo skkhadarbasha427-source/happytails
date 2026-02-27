@@ -17,6 +17,17 @@ exports.updateProfile = async (req, res, next) => {
     const user = await User.findById(req.user.id);
     
     if (req.body.name) user.name = req.body.name;
+    if (req.body.phoneNumber) {
+      // Validate phone number format (10 digits)
+      const phoneRegex = /^[0-9]{10}$/;
+      if (!phoneRegex.test(req.body.phoneNumber)) {
+        return res.status(400).json({ 
+          success: false, 
+          message: 'Please enter a valid 10-digit phone number' 
+        });
+      }
+      user.phoneNumber = req.body.phoneNumber;
+    }
     
     // Handle profile image upload
     if (req.file) {
@@ -28,7 +39,14 @@ exports.updateProfile = async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      user
+      message: 'Profile updated successfully',
+      user: {
+        id: user._id,
+        email: user.email,
+        phoneNumber: user.phoneNumber,
+        name: user.name,
+        profileImage: user.profileImage
+      }
     });
   } catch (error) {
     next(error);

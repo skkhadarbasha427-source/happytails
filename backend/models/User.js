@@ -10,7 +10,8 @@ const userSchema = new mongoose.Schema({
   },
   phoneNumber: {
     type: String,
-    trim: true
+    trim: true,
+    sparse: true  // Allows multiple null values
   },
   isVerified: {
     type: Boolean,

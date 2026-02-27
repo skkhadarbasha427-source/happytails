@@ -12,6 +12,7 @@ const Navbar = () => {
         <Link to="/" className="logo">🐾 Happily Tails</Link>
         <div className="nav-links">
           <Link to="/">Home</Link>
+          <Link to="/breeds">Breeds</Link>
           {user ? (
             <>
               <Link to="/create">Post Pet</Link>

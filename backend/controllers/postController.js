@@ -22,6 +22,11 @@ exports.createPost = async (req, res, next) => {
     const post = await Post.create({
       userId: req.user.id,
       category: req.body.category,
+      animalType: req.body.animalType,
+      breedId: req.body.breedId || null,
+      petName: req.body.petName,
+      age: req.body.age,
+      gender: req.body.gender,
       description: req.body.description,
       imageUrl,
       location: {
@@ -44,12 +49,14 @@ exports.createPost = async (req, res, next) => {
 // @access  Public
 exports.getPosts = async (req, res, next) => {
   try {
-    const { category, status, search, lat, lng, radius } = req.query;
+    const { category, status, search, lat, lng, radius, animalType, breedId } = req.query;
     
     let query = {};
 
     if (category) query.category = category;
     if (status) query.status = status;
+    if (animalType) query.animalType = animalType;
+    if (breedId) query.breedId = breedId;
     if (search) query.description = { $regex: search, $options: 'i' };
 
     // Location-based filtering (simple distance calculation)
@@ -70,6 +77,7 @@ exports.getPosts = async (req, res, next) => {
 
     const posts = await Post.find(query)
       .populate('userId', 'name phoneNumber profileImage')
+      .populate('breedId')
       .sort('-createdAt');
 
     res.status(200).json({
@@ -88,7 +96,8 @@ exports.getPosts = async (req, res, next) => {
 exports.getPost = async (req, res, next) => {
   try {
     const post = await Post.findById(req.params.id)
-      .populate('userId', 'name phoneNumber profileImage');
+      .populate('userId', 'name phoneNumber profileImage')
+      .populate('breedId');
 
     if (!post) {
       return res.status(404).json({ success: false, message: 'Post not found' });
